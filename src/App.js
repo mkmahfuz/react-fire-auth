@@ -14,11 +14,13 @@ function App() {
     name: '',
     photo: '',
     email: '',
-    password:''
+    password:'',
+    error : '',
+    success : false
   });
 
   const provider = new firebase.auth.GoogleAuthProvider();
-
+//
   const handleSignIn = () => {
     firebase.auth().signInWithPopup(provider)
       .then(result => {
@@ -37,7 +39,7 @@ function App() {
       })
     // console.log('signed in click')
   }
-
+//
   const handleSignOut = () => {
     firebase.auth().signOut()
       .then(res => {
@@ -53,19 +55,54 @@ function App() {
       )
       .catch(err => { console.log(err) })
   }
+//
+  const handleSubmit = (e) => {
+    console.log(user.email, user.password);
+    if(user.email && user.password){
+      console.log('submitting..')
 
-  const handleSubmit = () => {
+      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+      .then((userCredential) => {
+        // Signed in 
+        // const user = userCredential.user;
+        const newUser = {...user};
+        newUser.error = '';
+        newUser.success = true;
+        setUser(newUser)
+        console.log(user)
+        // ...
+      })
+      .catch((error) => {
+        // var errorCode = error.code;
+        // var errorMessage = error.message;
+        // ..
+        const newUser = {...user};
+        newUser.error = error.message;
+        newUser.success = false;
+        setUser(newUser)
+        console.log(error)
+      });
+    
+
+
+
+
+
+
+
+    }
+    e.preventDefault();
     console.log('own submit clicked')
-
   }
+  //
   const handleBlur = (evnt) => {
-    let isFormValid = true;
+    let isFieldValid = true;
     if (evnt.target.name === 'email') {
       const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; //regex valid email pattern
       // re.test(evnt.target.value) ? console.log('valid email') : console.log('invalid email') //regex.test(whattoteststring) return true/false
       // console.log(evnt.target.value)
       // const isEmailValid = re.test(evnt.target.value);
-      isFormValid = re.test(evnt.target.value);
+      isFieldValid = re.test(evnt.target.value);
       // console.log(isEmailValid)
     }
     if (evnt.target.name === 'password') {
@@ -74,11 +111,11 @@ function App() {
       const re = /\d{1}/;
       const passwordHasNumber = re.test(evnt.target.value);
       // console.log(isPasswordValid && passwordHasNumber);
-      isFormValid = isPasswordValid && passwordHasNumber;
+      isFieldValid = isPasswordValid && passwordHasNumber;
 
       //  ? console.log('password valid') : console.log('password is invalid');
     }
-if(isFormValid){
+if(isFieldValid){
   //[...cart,newcart]
   const newUserInfo = {...user}; //copy object
   newUserInfo[evnt.target.name] = evnt.target.value; //set object property
@@ -120,6 +157,12 @@ if(isFormValid){
 
           {/* <button type='submit'>Submit</button> */}
         </form>
+        <div>
+          <p style={{color:'red'}}>{user.error}</p>
+          {
+            user.success && <p style={{color:'green'}}> User created successfully</p>
+          }
+        </div>
       </div>
 
 
