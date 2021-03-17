@@ -56,9 +56,27 @@ function App() {
       )
       .catch(err => { console.log(err) })
   }
+//update username
+const updateUserName = name => {
+  const user = firebase.auth().currentUser;
+
+user.updateProfile({
+  displayName: name,
+  // photoURL: "https://example.com/jane-q-user/profile.jpg"
+}).then(function() {
+  console.log('user name updated')
+  // Update successful.
+}).catch(function(error) {
+  console.log(error)
+  // An error happened.
+});
+}
+
   //
   const handleSubmit = (e) => {
     console.log(user.email, user.password);
+
+
     //create new user
     if (newUser && user.email && user.password) {
       console.log('submitting..')
@@ -71,6 +89,7 @@ function App() {
           newUser.error = '';
           newUser.success = true;
           setUser(newUser)
+          updateUserName(newUser.name)
           console.log(user)
           // ...
         })
@@ -86,7 +105,7 @@ function App() {
         });
 
     }
-    //signUP with existing user
+    //signIn with existing user
     if (!newUser && user.email && user.password) {
       firebase.auth().signInWithEmailAndPassword(user.email, user.password)
         .then((userCredential) => {
@@ -181,7 +200,7 @@ function App() {
           {newUser && <input type='text' placeholder='name' name='name' onBlur={handleBlur} />}<br />
           <input type='text' onBlur={handleBlur} name='email' placeholder='email' required /><br />
           <input type='password' onBlur={handleBlur} name='password' placeholder='password' required /><br />
-          <input type='submit' value='Submit' />
+         <input type='submit'  value= {newUser ? 'SignUp' : 'SignIn'}  />
 
 
           {/* <button type='submit'>Submit</button> */}
