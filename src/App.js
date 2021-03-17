@@ -6,10 +6,19 @@ import firebaseConfig from './firebase.config';
 import { useState } from 'react';
 
 
-firebase.initializeApp(firebaseConfig);
+// firebase.initializeApp(firebaseConfig);
+
+//shudhu uporer line use korle evry save a error dekhay.. solution--bellow code.
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+  // firebase.initializeApp({});
+}else {
+  firebase.app(); // if already initialized, use that one
+}
 
 function App() {
   const [newUser, setNewUser] = useState(false);
+
   const [user, setUser] = useState({
     isSignedIn: false,
     name: '',
@@ -41,6 +50,7 @@ function App() {
       })
     // console.log('signed in click')
   }
+  
 //sign in with facebook
 const fbProvider = new firebase.auth.FacebookAuthProvider();
 const handleFbSignIn = () => {
