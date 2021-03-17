@@ -9,18 +9,19 @@ import { useState } from 'react';
 firebase.initializeApp(firebaseConfig);
 
 function App() {
+  const [newUser, setNewUser] = useState(false);
   const [user, setUser] = useState({
     isSignedIn: false,
     name: '',
     photo: '',
     email: '',
-    password:'',
-    error : '',
-    success : false
+    password: '',
+    error: '',
+    success: false
   });
 
   const provider = new firebase.auth.GoogleAuthProvider();
-//
+  //
   const handleSignIn = () => {
     firebase.auth().signInWithPopup(provider)
       .then(result => {
@@ -39,7 +40,7 @@ function App() {
       })
     // console.log('signed in click')
   }
-//
+  //
   const handleSignOut = () => {
     firebase.auth().signOut()
       .then(res => {
@@ -55,42 +56,62 @@ function App() {
       )
       .catch(err => { console.log(err) })
   }
-//
+  //
   const handleSubmit = (e) => {
     console.log(user.email, user.password);
-    if(user.email && user.password){
+    //create new user
+    if (newUser && user.email && user.password) {
       console.log('submitting..')
 
       firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-      .then((userCredential) => {
-        // Signed in 
-        // const user = userCredential.user;
-        const newUser = {...user};
-        newUser.error = '';
-        newUser.success = true;
-        setUser(newUser)
-        console.log(user)
-        // ...
-      })
-      .catch((error) => {
-        // var errorCode = error.code;
-        // var errorMessage = error.message;
-        // ..
-        const newUser = {...user};
-        newUser.error = error.message;
-        newUser.success = false;
-        setUser(newUser)
-        console.log(error)
-      });
-    
-
-
-
-
-
-
+        .then((userCredential) => {
+          // Signed in 
+          // const user = userCredential.user;
+          const newUser = { ...user };
+          newUser.error = '';
+          newUser.success = true;
+          setUser(newUser)
+          console.log(user)
+          // ...
+        })
+        .catch((error) => {
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          // ..
+          const newUser = { ...user };
+          newUser.error = error.message;
+          newUser.success = false;
+          setUser(newUser)
+          console.log(error)
+        });
 
     }
+    //signUP with existing user
+    if (!newUser && user.email && user.password) {
+      firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+        .then((userCredential) => {
+          // Signed in 
+          // const user = userCredential.user;
+          const newUser = { ...user };
+          newUser.error = '';
+          newUser.success = true;
+          setUser(newUser)
+          console.log(user)
+          // ...
+        })
+        .catch((error) => {
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          // ..
+          const newUser = { ...user };
+          newUser.error = error.message;
+          newUser.success = false;
+          setUser(newUser)
+          console.log(error)
+        });
+
+    }
+
     e.preventDefault();
     console.log('own submit clicked')
   }
@@ -115,12 +136,12 @@ function App() {
 
       //  ? console.log('password valid') : console.log('password is invalid');
     }
-if(isFieldValid){
-  //[...cart,newcart]
-  const newUserInfo = {...user}; //copy object
-  newUserInfo[evnt.target.name] = evnt.target.value; //set object property
-  setUser(newUserInfo)
-}
+    if (isFieldValid) {
+      //[...cart,newcart]
+      const newUserInfo = { ...user }; //copy object
+      newUserInfo[evnt.target.name] = evnt.target.value; //set object property
+      setUser(newUserInfo)
+    }
     console.log(evnt.target.name, evnt.target.value);
     // console.log(event.target.value)
 
@@ -144,25 +165,35 @@ if(isFieldValid){
 
       <div>
         <h1>Our own authentication system</h1>
+
         <div>
           <p>Name:{user.name}</p>
           <p>Email:{user.email}</p>
           <p>Password:{user.password}</p>
         </div>
+
+
+        <input type='checkbox' name='newUser' onChange={() => setNewUser(!newUser)} />
+        <label htmlFor="newUser">New User SignUP</label><br />
+
+
         <form onSubmit={handleSubmit}>
-          <input type='text' placeholder='name' name='name' onBlur={handleBlur}/><br/>
+          {newUser && <input type='text' placeholder='name' name='name' onBlur={handleBlur} />}<br />
           <input type='text' onBlur={handleBlur} name='email' placeholder='email' required /><br />
           <input type='password' onBlur={handleBlur} name='password' placeholder='password' required /><br />
           <input type='submit' value='Submit' />
 
+
           {/* <button type='submit'>Submit</button> */}
         </form>
+
         <div>
-          <p style={{color:'red'}}>{user.error}</p>
+          <p style={{ color: 'red' }}>{user.error}</p>
           {
-            user.success && <p style={{color:'green'}}> User created successfully</p>
+            user.success && <p style={{ color: 'green' }}> User {newUser ? 'created' : 'Logged In'} successfully</p>
           }
         </div>
+
       </div>
 
 
